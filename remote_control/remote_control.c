@@ -10,7 +10,7 @@ volatile uint8_t sema =0;
 volatile uint16_t Stop = 0;
 uint16_t befehl = 0;
 uint8_t vergleich[8];
-volatile uint16_t test_array[27];
+volatile uint16_t test_array[24];
 uint8_t count=0;
 void setup() {
 TCCR1A &= ~(1<<WGM10); 
@@ -28,20 +28,28 @@ Serial.begin(9600);
 
               }
 void loop(){
-  
-//sema noch löschen
-//doppelte sema condition einbauen wenn zähler größer 28
+
 if(sema){
 sema=0;
+if(Differenz<=600){//geändert!
 count++;
 
-if(count<29){
+if(count<26){
 test_array[count-1]=Differenz;}
-Serial.println(test_array[count-1]);}
-else{
-sema=0;  
-TIMSK1 &= ~(1<<ICIE1);
 
+else{
+TIMSK1 &= ~(1<<ICIE1);  
+sema=0;  
+befehl=0;
+for(int zuzu=16;zuzu<24;zuzu++){
+if(test_array[zuzu]>400){
+befehl |= (1<<(zuzu-16));
+}else{befehl &= ~(1<<(zuzu-16)); } 
+}
+
+
+  Serial.println(befehl);
+  delay(500);  
 
 count = 0;
 TIFR1 &= ~(1<<ICF1);
@@ -49,7 +57,7 @@ TIMSK1 |= (1<<ICIE1);
 
 
 
-}}
+}}}}
    
   
   
@@ -68,4 +76,3 @@ sema = 1;
 
      
                    
-
